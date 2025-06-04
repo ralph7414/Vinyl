@@ -1,3 +1,10 @@
+<?php 
+  require_once "./components/connect.php";
+  require_once "./components/utilities.php";
+
+  $sqlCate = "SELECT * FROM vinyl_genre";
+?>
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -28,10 +35,16 @@
           <input required name="price" type="text" class="form-control" placeholder="使用者姓名">
         </div>
 
+
         <div class="">
             <div class="input-group mb-1">
                 <span class="input-group-text">風格</span>
-                <input required name="genre" type="text" class="form-control" placeholder="使用者姓名">
+                <select name="genre" class="form-select">
+                    <option value selected disabled>請選擇</option>
+                    <?php foreach ($rowsCate as $rowCate): ?>
+                        <option value="<?= $rowCate["id"] ?>" <?=($rowCate["id"]==$row["category_id"])?"selected":""?> ><?= $rowCate["name"] ?></option>
+                    <?php endforeach ?>
+                </select>
             </div>
             <div class="input-group mb-1">
                 <span class="input-group-text">類別</span>
