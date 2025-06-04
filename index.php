@@ -12,7 +12,7 @@ $perPage = 20;
 $page = intval($_GET["page"] ?? 1);
 $pageStart = ($page - 1) * $perPage;
 
-$sql = "SELECT vinyl.id AS id,title,author_id,vinyl_author.author AS author,price,stock,vinyl_status.status AS status FROM `vinyl` JOIN vinyl_author ON vinyl_author.id = vinyl.author_id JOIN vinyl_status on vinyl_status.id = vinyl.status_id WHERE `status_id` = 1 LIMIT $perPage OFFSET $pageStart";
+$sql = "SELECT vinyl.id AS id,title,author_id,vinyl_author.author AS author,company,price,stock,vinyl_status.status AS status FROM `vinyl` JOIN vinyl_author ON vinyl_author.id = vinyl.author_id JOIN vinyl_status on vinyl_status.id = vinyl.status_id WHERE `status_id` = 1 LIMIT $perPage OFFSET $pageStart";
 $sqlAll = "SELECT vinyl.id AS id,title,author_id,vinyl_author.author AS author,price,stock,status_id FROM `vinyl` JOIN vinyl_author ON vinyl_author.id = vinyl.author_id WHERE `status_id` = 1";
 
 try {
@@ -59,8 +59,12 @@ $totalPage = ceil($totalCount / $perPage);
       width: 150px;
       text-align: center;
     }
+    .company{
+      width: 200px;
+      text-align: center;
+    }
     .price,.stock,.status{
-      width: 100px;
+      width: 75px;
       text-align: center;
     }
 
@@ -85,6 +89,7 @@ $totalPage = ceil($totalCount / $perPage);
       <div class="id">#</div>
       <div class="title">專輯</div>
       <div class="author">藝術家</div>
+      <div class="company">公司</div>
       <div class="price">價格</div>
       <div class="stock">庫存</div>
       <div class="status">狀態</div>
