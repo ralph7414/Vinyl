@@ -46,24 +46,27 @@ $totalPage = ceil($totalCount / $perPage);
       display: flex;
       margin-bottom: 2px;
     }
+
     .id {
       width: 50px;
     }
+
     .title {
       flex: 1;
     }
-    .release_date{
+
+    .release_date {
       width: 105px;
     }
-    .author{
+
+    .author {
       width: 150px;
       text-align: center;
     }
-    .company{
-      width: 200px;
-      text-align: center;
-    }
-    .price,.stock,.status{
+
+    .price,
+    .stock,
+    .status {
       width: 75px;
       text-align: center;
     }
@@ -89,7 +92,6 @@ $totalPage = ceil($totalCount / $perPage);
       <div class="id">#</div>
       <div class="title">專輯</div>
       <div class="author">藝術家</div>
-      <div class="company">公司</div>
       <div class="price">價格</div>
       <div class="stock">庫存</div>
       <div class="status">狀態</div>
@@ -101,14 +103,14 @@ $totalPage = ceil($totalCount / $perPage);
         <div class="id"><?= $index + 1 + ($page - 1) * $perPage ?></div>
         <div class="title"><?= $row["title"] ?></div>
         <div class="author"><?= $row["author"] ?></div>
-        <div class="company"><?= $row["company"] ?></div>
         <div class="price"><?= $row["price"] ?></div>
         <div class="stock"><?= $row["stock"] ?></div>
         <div class="status"><?= $row["status"] ?></div>
 
 
         <div class="time">
-          <div class="btn btn-danger btn-sm btn-del" data-id="<?= $row["id"] ?>">刪除</div>
+          <div class="btn btn-danger btn-sm btn-del" data-id="<?= $row["id"] ?>" data-title="<?= $row["title"] ?>">刪除
+          </div>
           <a class="btn btn-warning btn-sm" href="./vinylUpdate.php?id=<?= $row["id"] ?>">修改</a>
         </div>
       </div>
@@ -116,13 +118,13 @@ $totalPage = ceil($totalCount / $perPage);
 
 
     <ul class="pagination justify-content-center">
-      <?php for($i=1;$i<=$totalPage;$i++): ?>
+      <?php for ($i = 1; $i <= $totalPage; $i++): ?>
         <li class="page-item <?= $page == $i ? "active" : "" ?>">
-          <?php 
-            $link="?page={$i}";
-            // if($cid>0) $link .= "&cid={$cid}";
+          <?php
+          $link = "?page={$i}";
+          // if($cid>0) $link .= "&cid={$cid}";
           ?>
-          <a class="page-link" href="<?= $link ?>"><?=$i?></a>
+          <a class="page-link" href="<?= $link ?>"><?= $i ?></a>
         </li>
       <?php endfor; ?>
     </ul>
@@ -140,7 +142,7 @@ $totalPage = ceil($totalCount / $perPage);
     function doConfirm(e) {
       const btn = e.target
       // console.log(btn.dataset.id);
-      if (confirm(btn.dataset.name+" 確定刪除嗎?")) {
+      if (confirm(btn.dataset.title + " 確定刪除嗎?")) {
         window.location.href = `./doDeleteVinyl.php?id=${btn.dataset.id}`
       }
     }
