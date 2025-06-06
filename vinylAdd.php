@@ -32,17 +32,33 @@ try {
   <title>新增黑膠唱片</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-  <style></style>
+  <style>
+     body {
+      background-color: #1A1A1A;
+      color: #F4F1EC;
+    }
+  </style>
 </head>
 
 <body>
   <div class="container mt-4">
     <h1 class="mb-4">增加黑膠唱片</h1>
-    <form action="./doAdd.php" method="post" enctype="multipart/form-data">
+    <form action="./doAddVinyl.php" method="post" enctype="multipart/form-data">
       <!-- 唱片 -->
-      <div class="mb-3">
-        <label class="form-label">唱片名稱</label>
-        <input required name="title" type="text" class="form-control" placeholder="唱片名稱">
+      <div class="row mb-3">
+        <div class="col-2">
+          <label class="form-label" for="shs-id">唱片編號</label>
+          <div class="input-group">
+            <div class="input-group-text">
+              <span class="random-id" id="random-id">隨機</span>
+            </div>
+            <input required name="shs-id" id="shs-id" type="text" class="form-control" placeholder="編號" disabled>
+          </div>
+        </div>
+        <div class="col-10">
+          <label class="form-label col-4">唱片名稱</label>
+          <input required name="title" type="text" class="form-control" placeholder="唱片名稱">
+        </div>
       </div>
 
       <!-- 藝術家 / 公司 / 價格 -->
@@ -68,7 +84,7 @@ try {
           <select name="genre" id="genre" class="form-select" required>
             <option value selected disabled>請選擇</option>
             <?php foreach ($rows as $row): ?>
-              <option value="<?= $row["id"] ?>"><?= $row["genre"] ?></option>
+              <option value="<?= $row["id"] ?>"><?= $row["genre"]?></option>
             <?php endforeach ?>
           </select>
         </div>
@@ -88,7 +104,7 @@ try {
         </div>
         <div class="col-md-4">
           <label class="form-label">規格</label>
-          <input required name="format" type="text" class="form-control" placeholder="如：LP、EP...">
+          <input required name="format" type="text" class="form-control" placeholder="LP數量 ex: 1LP">
         </div>
         <div class="col-md-4">
           <label class="form-label">庫存</label>
@@ -99,7 +115,17 @@ try {
       <!-- 上傳檔案 -->
       <div class="mb-3">
         <label class="form-label">上傳圖片</label>
-        <input name="myFile" type="file" class="form-control">
+        <input name="myFile" type="file" class="form-control" accept=".png,.jpg,.jpeg">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">介紹</label>
+        <input name="desc_text" type="text" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">歌曲清單</label>
+        <input name="playlist" type="text" class="form-control">
       </div>
 
       <!-- 按鈕 -->
@@ -117,6 +143,17 @@ try {
     // 放你的 JS 代碼（包括 event listener）
     const genderSelect = document.getElementById("gender");
     const genreSelect = document.getElementById("genre");
+    const random=document.getElementById("random-id")
+    const randomInput=document.getElementById("shs-id")
+
+    random.addEventListener("click",()=>{
+      const hex = Math.floor(Math.random() * 0xFFFFFFFF)
+                .toString(16)
+                .padStart(8, '0')
+                .toUpperCase();
+
+      randomInput.value=hex
+    })
 
     const genderOptionsRaw = <?= json_encode($rowsGender) ?>;
 
@@ -134,8 +171,6 @@ try {
     });
 
     genreSelect.addEventListener("change", function () {
-
-
       const genreId = this.value;
       const genders = genderOptions[genreId] || [];
 
