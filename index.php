@@ -394,7 +394,7 @@ $totalPage = ceil($totalCount / $perPage);
       const btn = e.target
       // console.log(btn.dataset.id);
       if (confirm(btn.dataset.title + " 確定下架嗎?")) {
-        window.location.href = `./doDeleteVinyl.php?id=${btn.dataset.id}`
+        window.location.href = `./doRemoveVinyl.php?id=${btn.dataset.id}`
       }
     }
 
