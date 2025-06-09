@@ -1,6 +1,5 @@
 <?php 
-// ? 下架黑膠
-
+// ? 上架黑膠
 require_once "./components/connect.php";
 require_once "./components/Utilities.php";
 
@@ -11,7 +10,7 @@ if (!isset($_GET["id"])) {
 
 $id=$_GET["id"];
 
-$sql="UPDATE vinyl SET status_id = 0 where id = ?";
+$sql="UPDATE vinyl SET status_id = 1 where id = ?";
 
 try {
     $stmt = $pdo->prepare($sql);
@@ -21,7 +20,7 @@ try {
     echo "Error: " . $e->getMessage() . "<br>";
     exit;
 }
-alertGoTo("下架黑膠唱片成功", "./index.php");
+alertGoTo("上架黑膠唱片成功", "./index.php");
 
 
 ?>
