@@ -18,7 +18,7 @@ $status = isset($_GET["status"]) ? intval($_GET["status"]) : null;
 $valid_columns = ['id', 'price', 'title', 'author'];  // 根據你實際資料表欄位調整
 
 // 2. 取得 GET 參數
-$sort_by = $_GET['sort_by'] ?? '';
+$sort_by = isset($_GET['sort_by']) ? $_GET["sort_by"] : "id";
 $sort_order = ($_GET['sort_order'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
 // 3. 判斷 sort_by 是否在允許欄位中，否則預設 'id'
@@ -79,7 +79,7 @@ if ($price1 !== "" || $price2 !== "") {
 $whereSQL = "WHERE " . implode(" AND ", $conditions);
 
 $perPage = 20;
-$page = intval($_GET["page"] ?? 1);
+$page = max(1, intval($_GET["page"] ?? 1));
 $pageStart = ($page - 1) * $perPage;
 
 $select = "vinyl.id AS id,title,author_id,vinyl_author.author AS author,company,price,stock,vinyl_gender.gender AS gender,status_id FROM `vinyl` JOIN vinyl_author ON vinyl_author.id = vinyl.author_id JOIN vinyl_gender on vinyl_gender.id = vinyl.gender_id";
@@ -166,6 +166,7 @@ $totalPage = ceil($totalCount / $perPage);
     .title {
       padding-left: 10px;
       flex: 1;
+
       a {
         color: #e6c068;
       }
@@ -184,6 +185,7 @@ $totalPage = ceil($totalCount / $perPage);
 
     .author {
       width: 320px;
+
       /* text-align: center; */
       a {
         color: #e6c068;
@@ -205,10 +207,12 @@ $totalPage = ceil($totalCount / $perPage);
       align-items: center;
       cursor: pointer;
       color: #fff;
-      &#id{
+
+      &#id {
         padding-left: 10px;
       }
-      i{
+
+      i {
         padding-left: 5px;
       }
     }
@@ -295,7 +299,7 @@ $totalPage = ceil($totalCount / $perPage);
       <div class="col-md-4">
         <label class="form-label">狀態</label>
         <select name="status" id="status" class="form-select">
-          <option value="" disabled <?= ($status === null || $status === '') ? 'selected' : '' ?>>請選擇狀態</option>
+          <!-- <option value="" disabled <?= ($status === null || $status === '') ? 'selected' : '' ?>>請選擇狀態</option> -->
           <?php foreach ($rowsStatus as $row): ?>
             <option value="<?= $row["id"] ?>" <?= ($status === null || $status === '') && $row["id"] == 1 ? 'selected' : ($status == $row["id"] ? 'selected' : '') ?>>
               <?= $row["status"] ?>
@@ -436,33 +440,31 @@ $totalPage = ceil($totalCount / $perPage);
     const inputPrice1 = document.querySelector("input[name=price1]");
     const inputPrice2 = document.querySelector("input[name=price2]");
     const inputText = document.querySelector("input[name=search]")
-
-    const status = "<?= isset($_GET['status']) ? $_GET['status'] : '' ?>";
-    const price1 = "<?= isset($_GET['price1']) ? $_GET['price1'] : '' ?>";
-    const price2 = "<?= isset($_GET['price2']) ? $_GET['price2'] : '' ?>";
-    const genre = "<?= isset($_GET['genre']) ? $_GET['genre'] : '' ?>";
-    const gender = "<?= isset($_GET['gender']) ? $_GET['gender'] : '' ?>";
-    const author = "<?= isset($_GET['author']) ? $_GET['author'] : '' ?>";
-    const title = "<?= isset($_GET['title']) ? $_GET['title'] : '' ?>";
-    const author_id = "<?= isset($_GET['author_id']) ? $_GET['author_id'] : '' ?>";
+    const sortBy = document.querySelectorAll(".sortBy")
 
     const sort_column = "<?= $sort_column ?>";
     const sort_order = "<?= $sort_order ?>";
     const nextSortOrder = (sort_order === "asc") ? "desc" : "asc";
 
+    const status = "<?= isset($_GET['status']) ? addslashes($_GET['status']) : '' ?>";
+    const price1 = "<?= isset($_GET['price1']) ? addslashes($_GET['price1']) : '' ?>";
+    const price2 = "<?= isset($_GET['price2']) ? addslashes($_GET['price2']) : '' ?>";
+    const genre = "<?= isset($_GET['genre']) ? addslashes($_GET['genre']) : '' ?>";
+    const gender = "<?= isset($_GET['gender']) ? addslashes($_GET['gender']) : '' ?>";
+    const author = "<?= isset($_GET['author']) ? addslashes($_GET['author']) : '' ?>";
+    const title = "<?= isset($_GET['title']) ? addslashes($_GET['title']) : '' ?>";
+    const author_id = "<?= isset($_GET['author_id']) ? addslashes($_GET['author_id']) : '' ?>";
 
-    const sortBy = document.querySelectorAll(".sortBy")
+    if (status && status !== "undefined") params.set("status", status);
+    if (genre && genre !== "undefined") params.set("genre", genre);
+    if (gender && gender !== "undefined") params.set("gender", gender);
+    if (price1 && price1 !== "undefined") params.set("price1", price1);
+    if (price2 && price2 !== "undefined") params.set("price2", price2);
+    if (author && author !== "undefined") params.set("author", author);
+    if (title && title !== "undefined") params.set("title", title);
+    if (author_id && author_id !== "undefined") params.set("author_id", author_id);
 
-    const params = new URLSearchParams();
-    if (status && status !== "undefined") params.append("status", status);
-    if (genre && genre !== "undefined") params.append("genre", genre);
-    if (gender && gender !== "undefined") params.append("gender", gender);
-    if (price1 && price1 !== "undefined") params.append("price1", price1);
-    if (price2 && price2 !== "undefined") params.append("price2", price2);
-    if (author && author !== "undefined") params.append("author", author);
-    if (title && title !== "undefined") params.append("title", title);
-    if (author_id && author_id !== "undefined") params.append("author_id", author_id);
-
+    const params = new URLSearchParams(window.location.search); // ← 用現有網址初始化
 
     btnDel.forEach((btn) => {
       btn.addEventListener("click", doConfirmDel);
@@ -487,42 +489,35 @@ $totalPage = ceil($totalCount / $perPage);
     }
 
     function doConfirmRemove(e) {
-      const btn = e.target
+      const btn = e.target;
       // console.log(btn.dataset.id);
       if (confirm(btn.dataset.title + " 確定下架嗎?")) {
-        window.location.href = `./doRemoveVinyl.php?id=${btn.dataset.id}`
+        window.location.href = `./doRemoveVinyl.php?id=${btn.dataset.id}`;
       }
     }
 
     btnSearch.addEventListener("click", () => {
-      const queryType = document.querySelector('input[name=searchType]:checked').value;
+      if (inputPrice1.value) params.set("price1", inputPrice1.value);
+      else params.delete("price1");
 
-      let params = [];
+      if (inputPrice2.value) params.set("price2", inputPrice2.value);
+      else params.delete("price2");
 
-      // 處理價格區間
-      if (inputPrice1.value !== "") {
-        params.push(`price1=${encodeURIComponent(inputPrice1.value)}`);
-      }
-      if (inputPrice2.value !== "") {
-        params.push(`price2=${encodeURIComponent(inputPrice2.value)}`);
-      }
+      const query = inputText.value.trim();
 
-      // 處理搜尋字串
-      if (inputText.value.trim() !== "") {
+      if (query !== "") {
+        const queryType = document.querySelector('input[name=searchType]:checked').value;
         if (queryType === "title") {
-          params.push(`title=${encodeURIComponent(inputText.value.trim())}`);
+          params.set("title", query);
+          params.delete("author");
         } else if (queryType === "author") {
-          params.push(`author=${encodeURIComponent(inputText.value.trim())}`);
+          params.set("author", query);
+          params.delete("title");
         }
       }
 
-      // 組合 URL
-      const queryString = params.join("&");
-      const url = `./index.php?${queryString}`;
-
-      // 導向新頁面
-      window.location.href = url;
-    });
+      window.location.href = `index.php?${params.toString()}`;
+    // });
 
     // 放你的 JS 代碼（包括 event listener）
     const genderSelect = document.getElementById("gender");
@@ -549,26 +544,46 @@ $totalPage = ceil($totalCount / $perPage);
 
     genreSelect.addEventListener("change", function () {
       if (this.value) {
-        window.location.href = "index.php?genre=" + this.value;
+        params.set("genre", this.value);
       } else {
-        window.location.href = "index.php";
+        params.delete("genre");
       }
+
+      // 移除與 genre 無關的 gender（避免不匹配）
+      params.delete("gender");
+
+      window.location.href = `index.php?${params.toString()}`;
     });
 
     genderSelect.addEventListener("change", function () {
       const genre = genreSelect.value;
       const gender = this.value;
 
-      if (this.value) {
-        window.location.href = "index.php?genre=" + genre + "&gender=" + gender;
+      if (genre) {
+        params.set("genre", genre);
       } else {
-        window.location.href = "index.php?genre=" + genre
+        params.delete("genre");
       }
+
+      if (gender) {
+        params.set("gender", gender);
+      } else {
+        params.delete("gender");
+      }
+
+      // 重新導向時保留其他參數
+      window.location.href = "index.php?" + params.toString();
 
     });
 
     statusSelect.addEventListener("change", function () {
-      window.location.href = "index.php?status=" + this.value;
+      if (this.value) {
+        params.set("status", this.value);
+      } else {
+        params.delete("status");
+      }
+
+      window.location.href = "index.php?" + params.toString();
     });
 
 
