@@ -7,7 +7,7 @@
 // }
 
 require_once "./components/connect.php";
-require_once "./components/utilities.php";
+require_once "./components/Utilities.php";
 
 $genre = intval($_GET["genre"] ?? 0);
 $gender = intval($_GET["gender"] ?? 0);
@@ -446,6 +446,8 @@ $totalPage = ceil($totalCount / $perPage);
     const sort_order = "<?= $sort_order ?>";
     const nextSortOrder = (sort_order === "asc") ? "desc" : "asc";
 
+    const params = new URLSearchParams(window.location.search); // ← 用現有網址初始化
+
     const status = "<?= isset($_GET['status']) ? addslashes($_GET['status']) : '' ?>";
     const price1 = "<?= isset($_GET['price1']) ? addslashes($_GET['price1']) : '' ?>";
     const price2 = "<?= isset($_GET['price2']) ? addslashes($_GET['price2']) : '' ?>";
@@ -464,7 +466,6 @@ $totalPage = ceil($totalCount / $perPage);
     if (title && title !== "undefined") params.set("title", title);
     if (author_id && author_id !== "undefined") params.set("author_id", author_id);
 
-    const params = new URLSearchParams(window.location.search); // ← 用現有網址初始化
 
     btnDel.forEach((btn) => {
       btn.addEventListener("click", doConfirmDel);
@@ -517,7 +518,7 @@ $totalPage = ceil($totalCount / $perPage);
       }
 
       window.location.href = `index.php?${params.toString()}`;
-    // });
+    });
 
     // 放你的 JS 代碼（包括 event listener）
     const genderSelect = document.getElementById("gender");
@@ -559,21 +560,28 @@ $totalPage = ceil($totalCount / $perPage);
       const genre = genreSelect.value;
       const gender = this.value;
 
-      if (genre) {
-        params.set("genre", genre);
-      } else {
-        params.delete("genre");
+      // 更新參數
+      if (genre) params.set("genre", genre);
+      else params.delete("genre");
+
+      if (gender) params.set("gender", gender);
+      else params.delete("gender");
+
+      // 重新組裝 URL，將 genre 和 gender 放前面
+      const finalParams = new URLSearchParams();
+
+      // 先放 genre 和 gender
+      if (params.has("genre")) finalParams.set("genre", params.get("genre"));
+      if (params.has("gender")) finalParams.set("gender", params.get("gender"));
+
+      // 再放其他參數（不重複 genre 和 gender）
+      for (const [key, value] of params.entries()) {
+        if (key !== "genre" && key !== "gender") {
+          finalParams.append(key, value);
+        }
       }
 
-      if (gender) {
-        params.set("gender", gender);
-      } else {
-        params.delete("gender");
-      }
-
-      // 重新導向時保留其他參數
-      window.location.href = "index.php?" + params.toString();
-
+      window.location.href = `index.php?${finalParams.toString()}`;
     });
 
     statusSelect.addEventListener("change", function () {
@@ -606,19 +614,3 @@ $totalPage = ceil($totalCount / $perPage);
 </body>
 
 </html>
-
-<!-- <pre>
-  <?= var_dump($rowsGenre) ?>
-</pre>
-
-<pre>
-  <?= var_dump($rowsGender) ?>
-</pre> -->
-
-<!-- <?php
-echo "status: $status";
-echo "<pre>";
-print_r($conditions);
-print_r($values);
-echo "</pre>";
-?> -->

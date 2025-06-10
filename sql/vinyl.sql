@@ -1,5 +1,7 @@
 CREATE DATABASE vinyl
 
+CREATE DATABASE v_db
+
 use vinyl
 
 DROP TABLE vinyl
